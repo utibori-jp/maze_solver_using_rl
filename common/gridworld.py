@@ -18,7 +18,7 @@ class GridWorld:
             [0, None, 0, 0, 0]]
         )
         self.goal_state = (0, 4)
-        self.wall_state = [(1, 1), (2, 4), (3, 1)]
+        self.wall_state = [(1, 1), (2, 3), (3, 1)]
         self.start_state = (3, 0)
         self.agent_state = self.start_state
 
@@ -48,10 +48,12 @@ class GridWorld:
         next_state = (state[0] + move[0], state[1] + move[1])
         ny, nx = next_state
 
-        if nx < 0 or nx >= self.width or ny < 0 or ny >= self.height:
-            next_state = state
-        elif next_state == self.wall_state:
-            next_state = state
+        for i in range(len(self.wall_state)):
+            wall_state = self.wall_state[i]
+            if nx < 0 or nx >= self.width or ny < 0 or ny >= self.height:
+                next_state = state
+            elif next_state == wall_state:
+                next_state = state
 
         return next_state
 
@@ -75,3 +77,6 @@ class GridWorld:
         renderer = render_helper.Renderer(self.reward_map, self.goal_state, self.wall_state)
         renderer.render_v(v, policy, print_value)
 
+if __name__ == "__main__":
+    env = GridWorld()
+    env.render_v()

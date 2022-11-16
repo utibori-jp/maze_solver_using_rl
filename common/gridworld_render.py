@@ -54,37 +54,39 @@ class Renderer:
 
         for y in range(ys):
             for x in range(xs):
-                state = (y, x)
-                r = self.reward_map[y, x]
-                if r != 0 and r is not None:
-                    txt = 'R ' + str(r)
-                    if state == self.goal_state:
-                        txt = txt + ' (GOAL)'
-                    ax.text(x+.1, ys-y-0.9, txt)
-
-                if (v is not None) and state != self.wall_state:
-                    if print_value:
-                        offsets = [(0.4, -0.15), (-0.15, -0.3)]
-                        key = 0
-                        if v.shape[0] > 7: key = 1
-                        offset = offsets[key]
-                        ax.text(x+offset[0], ys-y+offset[1], "{:12.2f}".format(v[y, x]))
-
-                if policy is not None and state != self.wall_state:
-                    actions = policy[state]
-                    max_actions = [kv[0] for kv in actions.items() if kv[1] == max(actions.values())]
-
-                    arrows = ["↑", "↓", "←", "→"]
-                    offsets = [(0, 0.1), (0, -0.1), (-0.1, 0), (0.1, 0)]
-                    for action in max_actions:
-                        arrow = arrows[action]
-                        offset = offsets[action]
+                for i in range(len(self.wall_state)):
+                    wall_state = self.wall_state[i]
+                    state = (y, x)
+                    r = self.reward_map[y, x]
+                    if r != 0 and r is not None:
+                        txt = 'R ' + str(r)
                         if state == self.goal_state:
-                            continue
-                        ax.text(x+0.45+offset[0], ys-y-0.5+offset[1], arrow)
+                            txt = txt + ' (GOAL)'
+                        ax.text(x+.1, ys-y-0.9, txt)
 
-                if state == self.wall_state:
-                    ax.add_patch(plt.Rectangle((x,ys-y-1), 1, 1, fc=(0.4, 0.4, 0.4, 1.)))
+                    if (v is not None) and state != wall_state:
+                        if print_value:
+                            offsets = [(0.4, -0.15), (-0.15, -0.3)]
+                            key = 0
+                            if v.shape[0] > 7: key = 1
+                            offset = offsets[key]
+                            ax.text(x+offset[0], ys-y+offset[1], "{:12.2f}".format(v[y, x]))
+
+                    if policy is not None and state != wall_state:
+                        actions = policy[state]
+                        max_actions = [kv[0] for kv in actions.items() if kv[1] == max(actions.values())]
+
+                        arrows = ["↑", "↓", "←", "→"]
+                        offsets = [(0, 0.1), (0, -0.1), (-0.1, 0), (0.1, 0)]
+                        for action in max_actions:
+                            arrow = arrows[action]
+                            offset = offsets[action]
+                            if state == self.goal_state:
+                                continue
+                            ax.text(x+0.45+offset[0], ys-y-0.5+offset[1], arrow)
+
+                    if state == wall_state:
+                        ax.add_patch(plt.Rectangle((x,ys-y-1), 1, 1, fc=(0.4, 0.4, 0.4, 1.)))
         plt.show()
 
     def render_q(self, q, show_greedy_policy=True):
