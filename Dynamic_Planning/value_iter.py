@@ -3,31 +3,33 @@ if '__file__' in globals():
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from collections import defaultdict
 from common.gridworld import GridWorld
+from policy_iter import greedy_policy
 
-env = GridWorld()
-V = defaultdict(lambda: 0)
-
-def eval_onestep(pi, V, env, gamma = 0.9):
+def value_iter_onestep(V, env, gamma):
     for state in env.states():
         if state == env.goal_state:
             V[state] = 0
             continue
 
-        action_probs = pi[state]
-        new_V = 0
-        for action, action_prob in action_probs.items():
+        action_values = []
+        for action in env.actions():
             next_state = env.next_state(state, action)
             r = env.reward(next_state)
             if r is None:
                 r = 0
-            new_V += action_prob * (r + gamma * V[next_state])
-        V[state] = new_V
+            value = r + gamma * V[next_state]
+            action_values.append(value)
+
+        V[state] = max(action_values)
     return V
 
-def policy_eval(pi, V, env, gamma, threshold = 0.001):
+def value_iter(V, env, gamma, threshold = 0.001, is_render = True):
     while True:
+        if is_render:
+            env.render_v(V)
+
         old_V = V.copy()
-        V = eval_onestep(pi, V, env, gamma)
+        V = value_iter_onestep(V, env, gamma)
 
         delta = 0
         for state in V.keys():
@@ -38,4 +40,3 @@ def policy_eval(pi, V, env, gamma, threshold = 0.001):
         if delta < threshold:
             break
     return V
-    

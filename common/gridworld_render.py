@@ -61,10 +61,9 @@ class Renderer:
                     if state == self.goal_state:
                         txt = txt + ' (GOAL)'
                     ax.text(x+.1, ys-y-0.9, txt)
-                    
+
                 for i in range(len(self.wall_states)):
                     wall_state = self.wall_states[i]
-                    print(wall_state == state)
 
                     if (v is not None) and state != wall_state:
                         if print_value:
