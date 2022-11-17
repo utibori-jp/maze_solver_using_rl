@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 
 class Renderer:
-    def __init__(self, reward_map, goal_state, wall_state):
+    def __init__(self, reward_map, goal_state, wall_states):
         self.reward_map = reward_map
         self.goal_state = goal_state
-        self.wall_state = wall_state
+        self.wall_states = wall_states
         self.ys = len(self.reward_map)
         self.xs = len(self.reward_map[0])
 
@@ -54,15 +54,17 @@ class Renderer:
 
         for y in range(ys):
             for x in range(xs):
-                for i in range(len(self.wall_state)):
-                    wall_state = self.wall_state[i]
-                    state = (y, x)
-                    r = self.reward_map[y, x]
-                    if r != 0 and r is not None:
-                        txt = 'R ' + str(r)
-                        if state == self.goal_state:
-                            txt = txt + ' (GOAL)'
-                        ax.text(x+.1, ys-y-0.9, txt)
+                state = (y, x)
+                r = self.reward_map[y, x]
+                if r != 0 and r is not None:
+                    txt = 'R ' + str(r)
+                    if state == self.goal_state:
+                        txt = txt + ' (GOAL)'
+                    ax.text(x+.1, ys-y-0.9, txt)
+                    
+                for i in range(len(self.wall_states)):
+                    wall_state = self.wall_states[i]
+                    print(wall_state == state)
 
                     if (v is not None) and state != wall_state:
                         if print_value:
@@ -72,7 +74,7 @@ class Renderer:
                             offset = offsets[key]
                             ax.text(x+offset[0], ys-y+offset[1], "{:12.2f}".format(v[y, x]))
 
-                    if policy is not None and state != wall_state:
+                    if (policy is not None) and state != wall_state:
                         actions = policy[state]
                         max_actions = [kv[0] for kv in actions.items() if kv[1] == max(actions.values())]
 
