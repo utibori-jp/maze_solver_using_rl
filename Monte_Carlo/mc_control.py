@@ -63,5 +63,4 @@ for episode in range(episodes):
             break
         state = next_state
 
-print(agent.Q)
-
+env.render_q(agent.Q)

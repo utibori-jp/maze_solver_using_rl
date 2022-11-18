@@ -136,20 +136,24 @@ class Renderer:
                         2: (-0.2, 0.4),
                         3: (0.4, 0.4),
                     }
-                    if state == self.wall_state:
-                        ax.add_patch(plt.Rectangle((tx, ty), 1, 1, fc=(0.4, 0.4, 0.4, 1.)))
-                    elif state in self.goal_state:
-                        ax.add_patch(plt.Rectangle((tx, ty), 1, 1, fc=(0., 1., 0., 1.)))
-                    else:
 
-                        tq = q[(state, action)]
-                        color_scale = 0.5 + (tq / qmax) / 2  # normalize: 0.0-1.0
+                    for i in range(len(self.wall_states)):
+                        wall_state = self.wall_states[i]
 
-                        poly = plt.Polygon(action_map[action],fc=cmap(color_scale))
-                        ax.add_patch(poly)
+                        if state == wall_state:
+                            ax.add_patch(plt.Rectangle((tx, ty), 1, 1, fc=(0.4, 0.4, 0.4, 1.)))
+                        elif state in self.goal_state:
+                            ax.add_patch(plt.Rectangle((tx, ty), 1, 1, fc=(0., 1., 0., 1.)))
+                        else:
 
-                        offset= offset_map[action]
-                        ax.text(tx+offset[0], ty+offset[1], "{:12.2f}".format(tq))
+                            tq = q[(state, action)]
+                            color_scale = 0.5 + (tq / qmax) / 2  # normalize: 0.0-1.0
+
+                            poly = plt.Polygon(action_map[action],fc=cmap(color_scale))
+                            ax.add_patch(poly)
+
+                            offset= offset_map[action]
+                            ax.text(tx+offset[0], ty+offset[1], "{:12.2f}".format(tq))
         plt.show()
 
         if show_greedy_policy:
