@@ -49,7 +49,7 @@ class McAgent:
 env = GridWorld()
 agent = McAgent()
 
-episodes = 10000
+episodes = 1000
 for episode in range(episodes):
     state = env.reset()
     agent.reset()
