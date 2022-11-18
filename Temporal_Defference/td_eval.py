@@ -41,4 +41,3 @@ for episode in range(episodes):
         state = next_state
 
 env.render_v(agent.V)
-
