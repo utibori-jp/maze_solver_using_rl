@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from common.torch_utils import to_tensor
 
 class ReplayBuffer:
     def __init__(self, buffer_size, batch_size):
@@ -65,9 +66,13 @@ class DQNAgent:
             return np.random.choice(self.action_size)
         else:
             state = state[np.newaxis, :]
+            print(state)
             qs = self.qnet(state)
             return qs.data.argmax()
 
 agent = DQNAgent()
 state = (2, 0)
+state = to_tensor(state)
+print(state)
+print(type(state))
 print(agent.get_action(state))
