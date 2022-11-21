@@ -80,7 +80,7 @@ batch_size, input_size, hidden_size, output_size = 1, 20, 100, 4
 lr = 0.002
 torch_fix_seed()
 
-# DQN
+# q_learning and NN
 env = GridWorld()
 agent = QLearningAgent(input_size, hidden_size, output_size)
 
