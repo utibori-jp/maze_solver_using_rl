@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from common.torch_utils import to_tensor
+from common.gridworld import GridWorld
+import NN_Qlearning.q_learning_nn
 
 class ReplayBuffer:
     def __init__(self, buffer_size, batch_size):
@@ -24,9 +26,11 @@ class ReplayBuffer:
         data = random.sample(self.buffer, self.batch_size)
 
         state = np.stack([x[0] for x in data])
+        state = torch.from_numpy(state).clone()
         action = np.array([x[1] for x in data])
         reward = np.array([x[2] for x in data])
         next_state = np.stack([x[3] for x in data])
+        next_state = torch.from_numpy(next_state).clone()
         done = np.array([x[4] for x in data]).astype(np.int32)
         return state, action, reward, next_state, done
 
@@ -58,6 +62,7 @@ class DQNAgent:
         self.replay_buffer = ReplayBuffer(self.buffer_size, self.batch_size)
         self.qnet = QNet()
         self.qnet_target = QNet()
+        self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.qnet.parameters(), self.lr)
 
     def get_action(self, state):
@@ -66,13 +71,64 @@ class DQNAgent:
             return np.random.choice(self.action_size)
         else:
             state = state[np.newaxis, :]
-            print(state)
             qs = self.qnet(state)
             return qs.data.argmax()
 
+    def update(self, state, action, reward, next_state, done):
+        self.replay_buffer.add(state, action, reward, next_state, done)
+        if len(self.replay_buffer) < self.batch_size:
+            return
+        
+        state, action, reward, next_state, done = self.replay_buffer.get_batch()
+        # ここ機能しなくないか？ 案の定実行してみたらここでつまづく
+        qs = self.qnet(state)
+        print(qs)
+        # q = qs[np.arange(self.batch_size), action]
+
+        # next_qs = self.qnet_target(next_state)
+        # next_q = next_qs.max(axis = 1)
+        # next_q = next_q.detach()
+        # target = reward + (1-done) * self.gamma * next_q
+
+        # loss = self.criterion(target, q)
+        # self.optimizer.zero_grad()
+        # loss.backward()
+        # self.optimizer.step()
+        # return loss.data
+        # return 1
+
+
 agent = DQNAgent()
-state = (2, 0)
-state = to_tensor(state)
-print(state)
-print(type(state))
-print(agent.get_action(state))
+env = GridWorld()
+
+episodes = 1
+for episode in range(episodes):
+    state = env.reset()
+    total_loss, cnt = 0, 0
+    done = False
+    print(type(state))
+
+    while not done:
+        action = agent.get_action(state)
+        if isinstance(action, int):
+            action = torch.tensor(action, dtype = torch.int8)
+        next_state, reward, done = env.step(action)
+        loss = agent.update(to_tensor(state), action, reward, to_tensor(next_state), done)
+        total_loss += loss
+        cnt += 1
+        state = next_state
+
+
+
+
+# test code
+# state = (2, 0)
+# state = to_tensor(state)
+
+# action = agent.get_action(state)
+# if isinstance(action, int):
+#     action = torch.tensor(action, dtype = torch.int8)
+# next_state, reward, done = env.step(action)
+# next_state = to_tensor(next_state)
+# loss = agent.update(state, action, reward, next_state, done)
+# print(loss)
