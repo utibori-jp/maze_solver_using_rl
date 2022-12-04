@@ -13,7 +13,7 @@ class QNet(nn.Module):
         super(QNet, self).__init__()
         self.l1 = nn.Linear(input_size, hidden_size)
         self.l2 = nn.Linear(hidden_size, hidden_size)
-        self.l3 = nn.Linear(hidden_size, hidden_size)
+        self.l3 = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
         y = F.relu(self.l1(x))
@@ -80,7 +80,7 @@ batch_size, input_size, hidden_size, output_size = 1, 20, 100, 4
 lr = 0.002
 torch_fix_seed()
 
-# q_learning and NN
+# q_learning and
 env = GridWorld()
 agent = QLearningAgent(input_size, hidden_size, output_size)
 
@@ -88,17 +88,17 @@ episodes = 1000
 loss_history = []
 for episode in range(episodes):
     state = env.reset()
-    state = to_tensor(state)
+    tensor_state = to_tensor(state)
     total_loss, cnt = 0, 0
     done = False
 
     while not done:
-        action = agent.get_action(state)
+        action = agent.get_action(tensor_state)
         if isinstance(action, int):
             action = torch.tensor(action, dtype = torch.int8)
         next_state, reward, done = env.step(action)
-        next_state = to_tensor(next_state)
-        loss = agent.update(state, action, reward, next_state, done)
+        next_tensor_state = to_tensor(next_state)
+        loss = agent.update(tensor_state, action, reward, next_tensor_state, done)
         total_loss += loss
         cnt += 1
         state = next_state

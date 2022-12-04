@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 from common.torch_utils import to_tensor
 from common.gridworld import GridWorld
-import NN_Qlearning.q_learning_nn
 
 class ReplayBuffer:
     def __init__(self, buffer_size, batch_size):
@@ -24,6 +23,8 @@ class ReplayBuffer:
 
     def get_batch(self):
         data = random.sample(self.buffer, self.batch_size)
+        print(f"data = {data}")
+        print(self.buffer)
 
         state = np.stack([x[0] for x in data])
         state = torch.from_numpy(state).clone()
@@ -56,7 +57,7 @@ class DQNAgent:
         self.lr = 0.001
         self.epsilon = 0.1
         self.buffer_size = 10000
-        self.batch_size = 32
+        self.batch_size = 10
         self.action_size = 2
 
         self.replay_buffer = ReplayBuffer(self.buffer_size, self.batch_size)
@@ -75,15 +76,21 @@ class DQNAgent:
             return qs.data.argmax()
 
     def update(self, state, action, reward, next_state, done):
+        print(f"action = {action}")
         self.replay_buffer.add(state, action, reward, next_state, done)
         if len(self.replay_buffer) < self.batch_size:
             return
         
         state, action, reward, next_state, done = self.replay_buffer.get_batch()
         # ここ機能しなくないか？ 案の定実行してみたらここでつまづく
-        qs = self.qnet(state)
-        print(qs)
-        # q = qs[np.arange(self.batch_size), action]
+        # print(state)
+        # qs = self.qnet(state)
+        # q = qs[0][0]
+        # print(qs.shape)
+        # print(q)
+        # print(action)
+        # q = q[3]
+        # print(q)
 
         # next_qs = self.qnet_target(next_state)
         # next_q = next_qs.max(axis = 1)
@@ -97,26 +104,28 @@ class DQNAgent:
         # return loss.data
         # return 1
 
-
 agent = DQNAgent()
 env = GridWorld()
-
 episodes = 1
 for episode in range(episodes):
     state = env.reset()
     total_loss, cnt = 0, 0
     done = False
-    print(type(state))
 
     while not done:
-        action = agent.get_action(state)
+        print(cnt)
+        action = agent.get_action(to_tensor(state))
         if isinstance(action, int):
             action = torch.tensor(action, dtype = torch.int8)
         next_state, reward, done = env.step(action)
         loss = agent.update(to_tensor(state), action, reward, to_tensor(next_state), done)
-        total_loss += loss
+        # total_loss += loss
         cnt += 1
         state = next_state
+
+        if cnt == 11:
+            done = True
+
 
 
 
