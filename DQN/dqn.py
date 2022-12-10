@@ -82,27 +82,17 @@ class DQNAgent:
             return
         
         state, action, reward, next_state, done = self.replay_buffer.get_batch()
-        # ここ機能しなくないか？ 案の定実行してみたらここでつまづく
-        # print(state)
-        # qs = self.qnet(state)
-        # q = qs[0][0]
-        # print(qs.shape)
-        # print(q)
-        # print(action)
-        # q = q[3]
-        # print(q)
 
-        # next_qs = self.qnet_target(next_state)
-        # next_q = next_qs.max(axis = 1)
-        # next_q = next_q.detach()
-        # target = reward + (1-done) * self.gamma * next_q
+        next_qs = self.qnet_target(next_state)
+        next_q = next_qs.max(axis = 1)
+        next_q = next_q.detach()
+        target = reward + (1-done) * self.gamma * next_q
 
-        # loss = self.criterion(target, q)
-        # self.optimizer.zero_grad()
-        # loss.backward()
-        # self.optimizer.step()
-        # return loss.data
-        # return 1
+        loss = self.criterion(target, q)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        return loss.data
 
 agent = DQNAgent()
 env = GridWorld()
@@ -119,25 +109,10 @@ for episode in range(episodes):
             action = torch.tensor(action, dtype = torch.int8)
         next_state, reward, done = env.step(action)
         loss = agent.update(to_tensor(state), action, reward, to_tensor(next_state), done)
-        # total_loss += loss
+        total_loss += loss
         cnt += 1
         state = next_state
 
         if cnt == 11:
             done = True
 
-
-
-
-
-# test code
-# state = (2, 0)
-# state = to_tensor(state)
-
-# action = agent.get_action(state)
-# if isinstance(action, int):
-#     action = torch.tensor(action, dtype = torch.int8)
-# next_state, reward, done = env.step(action)
-# next_state = to_tensor(next_state)
-# loss = agent.update(state, action, reward, next_state, done)
-# print(loss)
