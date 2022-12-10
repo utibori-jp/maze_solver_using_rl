@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-
 class Renderer:
     def __init__(self, reward_map, goal_state, wall_states):
         self.reward_map = reward_map
