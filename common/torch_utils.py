@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 
-
 def one_hot(state):
     HEIGHT, WIDTH = 4, 5
     vec = np.zeros(HEIGHT * WIDTH, dtype = np.float32)
