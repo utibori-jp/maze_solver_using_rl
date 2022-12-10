@@ -5,7 +5,7 @@ from collections import defaultdict
 from common.gridworld import GridWorld
 from policy_eval import policy_eval
 
-def argmax(d): # d (dict)
+def argmax(d):
     max_value = max(d.values())
     max_key = -1
     for key, value in d.items():
