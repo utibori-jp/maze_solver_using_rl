@@ -38,4 +38,3 @@ def policy_eval(pi, V, env, gamma, threshold = 0.001):
         if delta < threshold:
             break
     return V
-    
