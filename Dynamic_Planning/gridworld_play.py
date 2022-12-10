@@ -24,3 +24,4 @@ elif algorithm == "value_iter":
     V = value_iter(V, env, gamma)
     pi = greedy_policy(V, env, gamma)
     env.render_v(V, pi)
+    
